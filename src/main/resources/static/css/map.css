@@ -1,0 +1,235 @@
+.ol-map {
+    background-color: #d7ddcc;
+}
+
+.ol-popup {
+    position: absolute;
+    color: #142220;
+    background-color: #2bb8dd;
+    -webkit-filter: dropshadow(0 1px 4px rgba(0, 0, 0, 0.2));
+    filter: dropshadow(0 1px 4px rgba(0, 0, 0, 0.2));
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #2bb8dd;
+    bottom: 50px; /*箭头距离*/
+    left: -50px;
+    -webkit-box-shadow: 0 2px 1px rgba(125, 125, 125, 0.8);
+    -moz-box-shadow: 0 2px 1px rgba(125, 125, 125, 0.8);
+    box-shadow: 0 2px 1px rgba(0, 0, 0, 1);
+    width:300px;
+}
+
+.ol-popup-hidden {
+    visibility: hidden;
+}
+.ol-popup:after, .ol-popup:before {
+    top: 100%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+}
+
+.ol-popup:after {
+    border-top-color: #2bb8dd;
+    border-left-width: 10px; /*箭头宽度*/
+    border-right-width: 10px; /*箭头宽度*/
+    border-top-width: 50px; /*箭头高度*/
+    border-bottom-width: 0px; /*箭头高度*/
+    left: 48px;
+    margin-left: -10px;
+    opacity: 1;
+}
+
+.ol-popup:before {
+    border-top-color: #cccccc;
+    border-left-width: 10px; /*箭头宽度*/
+    border-right-width: 10px; /*箭头宽度*/
+    border-top-width: 50px; /*箭头高度*/
+    border-bottom-width: 0px; /*箭头高度*/
+    left: 48px;
+    margin-left: -11px;
+    opacity: 1;
+}
+
+.ol-popup-closer {
+    text-decoration: none;
+    position: absolute;
+    top: 2px;
+    right: 8px;
+}
+
+.ol-popup-closer:after {
+    content: url("/static/images/close.png");
+}
+
+.ol-popup-content{
+    min-width: 300px;
+    min-height: 120px;
+}
+.bottom-panel {
+    position: relative;
+    border: 1px solid #4a74a8;
+    height: 28px;
+    z-index: 1000;
+    background-color: #9eb0c6;
+    margin-top: 2px;
+}
+
+.bottom-panel-info {
+    position: absolute;
+    width: 200px;
+    left: 10px;
+
+}
+
+.bottom-panel-button {
+    position: absolute;
+    width: 200px;
+    right: 10px;
+
+}
+
+.bottom-panel-button button {
+    width: 50px;
+}
+
+.ol-scale-line_over {
+    background: #95b9e6;
+    background: rgba(0, 60, 136, .3);
+    border-radius: 4px;
+    bottom: 8px;
+    left: 50px;
+    padding: 2px;
+    position: absolute
+}
+
+.ol-full-screen {
+    position: absolute;
+    top: 0px;
+    padding: 0px;
+    margin: 0px;
+    width: 50px;
+    righ: 0px;;
+}
+.ol-compass{
+    right: 30px;
+    bottom: 50px;
+    position: absolute;
+/*     z-index: 1; */
+}
+.ol-compass img{
+}
+/*Overwrite  ol.css*/
+
+.ol-zoom .ol-zoom-in {
+    border-radius: 2px 2px 0 0;
+    background: #0087b4;
+}
+
+.ol-zoom .ol-zoom-out {
+    border-radius: 0 0 2px 2px;
+    background: #0087b4;
+}
+
+.ol-zoomslider {
+    top: 4.5em;
+    left: .5em;
+    width: 20px;
+    height: 180px;
+    background-color: #0087b4;
+}
+.ol-zoomslider-thumb {
+    position: absolute;
+    background: #4432dd;
+    border-radius: 2px;
+    cursor: pointer;
+    height: 10px;
+    width: 24px;
+    margin: 0px
+}
+
+
+*{
+    margin: 0;
+    padding: 0;
+}
+#weadmin-body{
+    box-sizing: border-box;
+    height: 100%;
+    width: 100%;
+    padding: 8px;
+    overflow: hidden;
+}
+
+#left {
+    box-sizing: border-box;
+    float: left;
+    width: 15%;
+    height: 98%;
+    border: 1px solid #ccc;
+    background: #f5f5f5;
+}
+#rightMap{
+    float: right;
+    position: relative;
+    width: 100%;
+    outline: 1px solid #ccc;
+    /*border: 1px solid red;*/
+}
+#rightMap .btn-wrap{
+    position: absolute;
+    top:12px;
+    display: flex;
+    justify-content: space-around;
+    width: 80%;
+    z-index: 999;
+}
+#rightMap .btn-wrap .btn-item{
+    width: 145px;
+    height: 50px;
+    border-radius: 3px;
+    background: rgba(54, 106, 255, 0.6);
+}
+#rightMap .btn-wrap .btn-item p{
+    text-align: center;
+    color: #fff;
+    height: 25px;
+    line-height: 25px;
+    margin: 0;
+}
+.left-top{
+    height: 100px;
+    text-align:center;
+    line-height: 50px;
+}
+.left-top span{
+    font-weight: bold;
+    font-size: 24px;
+    display:block;
+}
+.left-tree{
+    /*display: inline-block;*/
+    /*width: 100%;
+    height:100%;*/
+    padding: 10px;
+    /*overflow: auto;*/
+    /*overflow-y:scroll*/
+    overflow-y: auto;
+}
+labor-company{
+    margin:20px;
+}
+span.labor-company-span{
+    font-size: 22px;
+    font-weight: bolder;
+    color: #2e69f7;
+}
+hr.t{
+    background-color: #2e69f7;
+    height: 2px;
+    margin-right: 15px;
+    font-weight: bolder;
+}

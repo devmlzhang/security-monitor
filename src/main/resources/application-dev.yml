@@ -1,0 +1,70 @@
+##################################开发环境配置开始#######################
+server:
+  port: 8082
+
+
+spring:
+  datasource:
+    name: test
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://10.2.100.252:3306/ryoma_co_ctms?useUnicode=true&characterEncoding=utf-8&useSSL=true
+    username: root
+    password: root123
+    #url: jdbc:mysql://127.0.0.1:3306/ryoma_co_ctms?useUnicode=true&characterEncoding=utf-8&useSSL=true
+    #username: root
+    #password: root
+    # 使用druid数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+    filters: stat
+    maxActive: 20
+    initialSize: 1
+    maxWait: 60000
+    minIdle: 1
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxOpenPreparedStatements: 20
+
+  profiles: dev
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    cache: false
+    encoding: UTF-8
+    mode: HTML5
+    suffix: .html
+
+  mvc:
+    static-path-pattern: /static/**
+      #热部署
+      #devtools:
+      #restart:
+      #enabled: true
+      #additional-paths: src/main/java
+    #exclude: static/**,templates/*
+
+mybatis:
+  mapper-locations: classpath*:mapper/*.xml
+
+#mqtt
+mqtt_url: tcp://10.2.100.81:1883
+mqtt_clientId: weirdo-cliendId
+
+#websocket
+websocket_hostname: 10.2.100.81
+websocket_port: 61614
+
+#amq过期时间,防止积压(秒)
+mqtt_expiration: 20
+
+activemq:
+  broker-url: tcp://10.2.100.81:61616
+  user: admin
+  password: admin
+
+
+

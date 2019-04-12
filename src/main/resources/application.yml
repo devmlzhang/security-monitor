@@ -1,0 +1,6 @@
+#激活环境的配置文件
+spring:
+  profiles:
+    active: dev
+
+
