@@ -25,8 +25,8 @@ public class SafeHatIndexController {
     @Value("${mqtt_clientId}")
     private String mqttClientId;
 
-    @RequestMapping("/hats")
-    public String  map(Model modelMap, String projId){
+    @RequestMapping("/alarm")
+    public String  alarm(Model modelMap, String projId){
         String projId2= "7730596820333821952";
         System.out.println(projId);
         //动态创建topic
