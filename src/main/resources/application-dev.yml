@@ -6,13 +6,9 @@ server:
 spring:
   datasource:
     name: test
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://10.2.100.252:3306/ryoma_co_ctms?useUnicode=true&characterEncoding=utf-8&useSSL=true
+    url: jdbc:mysql://127.0.0.1:3306/ryoma_co_ctms?useUnicode=true&characterEncoding=utf-8&useSSL=true
     username: root
-    password: root123
-    #url: jdbc:mysql://127.0.0.1:3306/ryoma_co_ctms?useUnicode=true&characterEncoding=utf-8&useSSL=true
-    #username: root
-    #password: root
+    password: root
     # 使用druid数据源
     type: com.alibaba.druid.pool.DruidDataSource
     filters: stat
