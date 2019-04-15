@@ -25,25 +25,29 @@ public class SafeHatIndexController {
     @Value("${mqtt_clientId}")
     private String mqttClientId;
 
-    @RequestMapping("/alarm")
-    public String  alarm(Model modelMap, String projId){
+    @RequestMapping("/baidu")
+    public String  alarm(Model modelMap, String projId,String radius){
         String projId2= "7730596820333821952";
         System.out.println(projId);
         //动态创建topic
-        double longitude=106.632843;
-        double latitude=26.656165;
-        JSONObject projLonLat=new JSONObject();//工地经纬度
-        projLonLat.put("longitude",longitude);
-        projLonLat.put("latitude",latitude);
+        String longitude="106.62577";
+        String latitude="26.648352";
+        if(radius.isEmpty()){
+            radius="300";
+        }
+
+        modelMap.addAttribute("longitude",longitude);
+        modelMap.addAttribute("latitude",latitude);
         modelMap.addAttribute("projId",projId2);
+        modelMap.addAttribute("safeRadius",radius);
         modelMap.addAttribute("siteMap","PEK");//离线地图 标志
-        modelMap.addAttribute("projLonLat",projLonLat);//工地经纬度
+        String projTopic = NumToStringUtil.numToString(Long.valueOf("7730596820333821952"));
+        modelMap.addAttribute("projTopic",projTopic);
         modelMap.addAttribute("hostName",hostName);
         modelMap.addAttribute("mqttClientId",mqttClientId);
         modelMap.addAttribute("mqttPort",port);
-        String projTopic = NumToStringUtil.numToString(Long.valueOf("7730596820333821952"));
-        modelMap.addAttribute("projTopic",projTopic);
-        return "alarm";
+
+        return "baidu";
     }
 
 

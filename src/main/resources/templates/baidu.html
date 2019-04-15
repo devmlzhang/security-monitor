@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="UTF-8">
+	<title>资源</title>
+</head>
+
+<link rel="stylesheet" href="/static/lib/layui/css/layui.css"  media="all">
+<link rel="stylesheet" type="text/css" href="/static/css/map.css">
+<link rel="stylesheet" type="text/css" href="/static/css/toolbox.css">
+<link rel="stylesheet" type="text/css" href="/static/css/ol3-layerswitcher.css">
+<link rel="stylesheet" type="text/css" href="/static/css/main.css">
+<script type="text/javascript" src="/static/lib/jquery.min.js"></script>
+<script type="text/javascript" src="/static/lib/layui/layui.js"></script>
+<script type="text/javascript" src="/static/js/menu.js"></script>
+<!--引用百度地图API-->
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=SertLusQ3872QlMAMbeLy1hicwD3rtcM"></script>
+<script type=text/javascript src='/static/lib/mqtt/mqttws31.js'></script>
+
+<style type="text/css">
+	p{margin-left:5px; font-size:14px;}
+	.personInfo{color: rgba(249,255,243,0.74)}
+</style>
+
+<body>
+<div id="warnVoice" title="关闭当前报警音效" onclick="closeWarning();">
+	<audio src="/static/voice/warning.mp3" loop="loop"></audio>
+</div>
+	<div style="position: absolute; bottom: 16px;margin-left: 16px;z-index: 999;background: rgba(38,95,174,0.74);border-radius:3px 4px 5px 6px">
+		<h3 class="personInfo">劳务公司：<span id="company" class="main"></span></h3>
+		<h3 class="personInfo">班组：<span id="team" class="main"></span></h3>
+		<h3 class="personInfo">姓名：<span id="name" class="main"></span></h3>
+		<h3 class="personInfo">经度：<span id="lon" class="main"></span></h3>
+		<h3 class="personInfo">纬度：<span id="lat" class="main"></span></h3>
+		<h3><marquee id="safeAlarm"  width=400 scrollamount=6  size="13" hspace="100" bgcolor="#FF151C"></marquee></h3>
+	</div>
+<div id="weadmin-body">
+	<div id="rightMap">
+		<div class="btn-wrap">
+			<div class="btn-item">
+				<p>5个</p>
+				<p>项目在场班组数</p>
+				<h1 th:text="${projId}"></h1>
+			</div>
+			<div class="btn-item">
+				<p>5个</p>
+				<p>项目在场班组数</p>
+			</div>
+			<div class="btn-item">
+				<p>5个</p>
+				<p>项目在场班组数</p>
+			</div>
+			<div class="btn-item">
+				<p>5个</p>
+				<p>项目在场班组数</p>
+			</div>
+		</div>
+
+		<div id="mapBox" class="mapBoxCss ol-map">
+			<div id='toolBox' class="ol-toolbox-panel ol-hidden"></div>
+		</div>
+	</div>
+
+</div>
+</body>
+<script th:inline="javascript">
+	var safeDistance=null;
+	var safePoint = null;
+	var safeRadius = [[${safeRadius}]];
+    var apc3 = [[${siteMap}]];
+    var ssMap = null;
+    var projId = [[${projId}]];
+    var hatlocationlng= [[${longitude}]];
+    var hatlocationlat= [[${latitude}]];
+    var markers =[];
+    var chooseUser='';//选择人名称
+    var chooseUserId='';//选择人id
+    var chooseUserLine=null;
+    var userPoints=[];
+	var projTopic=[[${projTopic}]];
+	var hostname=[[${hostName}]];
+	var port=[[${mqttPort}]];
+	var clientId = [[${mqttClientId}]] + parseInt(Math.random() * 100, 10);
+
+	console.log("data:"+hatlocationlng+"--:"+hatlocationlat);
+
+</script>
+<script type=text/javascript src='/static/lib/webSocket.js'></script>
+<!--百度地图开始 -->
+
+<script type="text/javascript">
+    layui.use(['flow','form',  'upload'],  function(){
+        var flow = layui.flow,
+            form = layui.form,
+            upload = layui.upload,
+           // layer = parent.layer === undefined ? layui.layer : top.layer,
+            $ = layui.jquery;
+        mqtt_connect();
+    });
+
+    var windowHeight=$(document).height()-4;
+    var windowWidth=$(document).width()-4;
+    $("#rightMap").css("height",windowHeight);
+    $("#rightMap").css("width",windowWidth);
+
+   //创建 地图开始
+	var map = new BMap.Map("rightMap",{minZoom:17,maxZoom:23,mapType:BMAP_HYBRID_MAP});    // 创建Map实例
+	map.centerAndZoom(new BMap.Point(hatlocationlng,hatlocationlat),20);// 设置地图显示的城市 此项是必须设置的
+
+    //根据地址获取经纬度
+	safePoint = new BMap.Point(hatlocationlng,hatlocationlat);
+	var myIcon = new BMap.Icon("http://api.map.baidu.com/img/markers.png", new BMap.Size(22, 25), {
+		offset: new BMap.Size(10, 25),
+		imageOffset: new BMap.Size(0, 0 - 10 * 30)
+	});
+	// 先把这个创建起来 因为下面会用到里面的属性
+	var marker;
+	marker = new BMap.Marker(safePoint,{icon: myIcon});// 创建标注
+	map.addOverlay(marker);
+	marker.enableDragging(); //marker可拖拽
+	safeRadius
+	var circle = new BMap.Circle(safePoint,safeRadius,{fillColor:"blue", strokeWeight: 1 ,fillOpacity: 0.3, strokeOpacity: 0.3});//设置覆盖物的参数，中心坐标，半径，颜色
+	map.addOverlay(circle);//在地图上显示圆形覆盖物
+	//画防区结束
+
+	map.addEventListener("click",function(e){
+		reset();
+		$("#lon").text(e.point.lng)
+		$("#lat").text(e.point.lat)
+	});
+    //添加地图类型控件
+    map.addControl(new BMap.MapTypeControl({
+        mapTypes:[ BMAP_NORMAL_MAP, BMAP_HYBRID_MAP]
+    }));
+    map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+	map.addControl(new BMap.NavigationControl());
+
+	//调用处理数据
+     function handldMessage(data) {
+		 console.info('data'+JSON.stringify(data));
+         $("#longitude").text(data.longitude);
+         $("#latitude").text(data.latitude);
+         if(chooseUser){//选择当前人的定位
+             console.info('绘画当前人--'+chooseUserId+":"+chooseUser);
+             if(data.userId==chooseUserId){
+                 drawMarker(data);//定位当前人
+                 appendUserMarkt(data.longitude,data.latitude); //绘画当前人轨迹
+             }
+             hideOtherMarker(chooseUserId);
+         }else{//说有人定位
+             drawMarker(data);
+         }
+
+     }
+     var pt=null;
+     var flag=false;
+
+
+    //消除其他人信息
+	function hideOtherMarker(userId) {
+        markers.forEach(function (v) {
+            if(v.userId!=userId){
+                map.removeOverlay(v.markers);
+			}
+		})
+
+    }
+
+    function isSafeDistance(data) {
+		console.log("data:"+data.longitude+"--:"+data.latitude);
+		var pointB = new BMap.Point(data.longitude,(data.latitude));
+		safeDistance=(map.getDistance(safePoint,pointB)).toFixed(2)
+		console.log("isSafeDistance:"+safeDistance+"m");
+		if(parseInt(safeRadius) < parseInt(safeDistance)){
+			alarm(data);
+		}
+	}
+
+	var isPlaying = false;
+	function openWarning() {
+		if(!isPlaying) {
+			$('#warnVoice audio')[0].play();
+			isPlaying = true;
+			setTimeout(closeWarning,6000)
+		}
+	}
+
+	function closeWarning() {
+		if(isPlaying) {
+			$('#warnVoice audio')[0].pause();
+			isPlaying = false;
+		}
+	}
+
+
+
+	function alarm(info) {
+		console.log("防区报警！---"+JSON.stringify(info));
+		openWarning();
+	}
+
+
+
+    //消除运动轨迹
+    function hideUserLine(){
+	    if(chooseUserLine){
+            map.removeOverlay(chooseUserLine);
+        }
+    }
+    /**
+	 * 获取当前人的运动经纬度
+     */
+	function getUserMarks(thisUserId) {
+        var params={"projId":projId,"imei":thisUserId};
+        $.get("/device/collection/getLocationDataByImei",params,function (res) {
+            if(res.errcode==0){
+                userPoints=[];
+                res.result.forEach(function (v) {
+                    var thispoint=new BMap.Point(v.longitude,v.latitude);
+                    userPoints.push(thispoint);
+                });
+                drawUserLine();
+            }
+        });
+
+    }
+    //追加当前用户点
+	function appendUserMarkt(longitude,latitude){
+        var thispoint=new BMap.Point(longitude,latitude);
+        userPoints.push(thispoint);
+        drawUserLine();
+    }
+    //绘画当前人运动轨迹
+	function drawUserLine(){
+        if(userPoints.length>200){ //保证用户不能大于200 个运动点
+            userPoints.splice(0,1);
+        }
+        var polyline = new BMap.Polyline(userPoints, {strokeColor:"blue", strokeWeight:2, strokeOpacity:0.5});   //创建折线
+        map.addOverlay(polyline); //增加折线
+        if(chooseUserLine){
+            map.removeOverlay(chooseUserLine);
+        }
+        chooseUserLine=polyline;
+	}
+
+	//画出传入数点 并删除原来的点 实现动态 更新
+    function drawMarker(data){
+        var userId=data.userId;
+        console.log("userId---:"+data.userId)
+        var me=this;
+        pt = new BMap.Point(data.longitude,(data.latitude));
+        var label;
+        var myIcon = new BMap.Icon("/static/images/marker/poi/person.png", new BMap.Size(300,157),{anchor: new BMap.Size(11, 12)});
+        var marker = new BMap.Marker(pt,{icon:myIcon});
+        label = new BMap.Label(userId, {offset: new BMap.Size(20, 0)});
+        label.setStyle({display:"none"});
+        marker.setLabel(label);
+       // marker.setTitle(data.name);
+        map.addOverlay(marker);
+        //添加缓存 点
+        findMarkersInArray(userId,marker);
+        marker.addEventListener("click", function (e) {      //这里添加maker的监听点击事件,触发自定义div("#info-panel)的展示    　　　　　　　　　　　　　　　　　　　　　　
+            me.tag=e.target.getLabel().content; //点击maker点后  获取label里面id
+            /*console.log("id:"+JSON.stringify(me.tag));*/
+			showInfo(me.tag)
+			//deletePoint(me.tag);
+        })
+		 isSafeDistance(data);
+
+	}
+
+	function showInfo(imei){
+		reset();
+		$("#company").text("xx公司");
+		$("#team").text("xx班组");
+		$("#name").text("张三");
+	}
+
+	function deletePoint(id){
+		var allOverlay = map.getOverlays();
+		for (var i = 0; i < allOverlay.length -1; i++){
+			if(allOverlay[i].getLabel().content == id){
+				map.removeOverlay(allOverlay[i]);
+				return false;
+			}
+		}
+	}
+
+	function reset() {
+		$("#company").text("");
+		$("#team").text("");
+		$("#name").text("");
+	}
+
+	function findMarkersInArray(userId,thismarker){
+        var markflag=true;
+        markers.forEach(function (v,index) {
+            if(userId==v.userId){
+                var lastmark=v.markers;
+                map.removeOverlay(lastmark);
+                v.markers=thismarker;
+                markflag=false;
+			}
+        });
+        if(markflag){
+            var markersArray={
+                userId:userId,
+                markers:thismarker
+            };
+            markers.push(markersArray);
+        }
+    }
+
+</script>
+<!--百度地图结束 -->
+
+<script>
+    $('.left-tree').css("height",$(window).height()-140);
+</script>
+
+
+</html>

@@ -3,9 +3,6 @@
  * 连接方法
  */
 function mqtt_connect(){
-   // var hostname="10.2.100.45";
-   // var port="61614";
-   // var clientId = "weirdo-cliendId" + parseInt(Math.random() * 100, 10);
     // Create a client instance
     mqtt_client = new Paho.MQTT.Client(hostname, Number(port), clientId);
     mqtt_client.onConnectionLost = onConnectionLost;
@@ -31,13 +28,13 @@ function mqtt_connect(){
  */
 function onConnect(context) {
     //Once a connection has been made, make a subscription and send a message.
-   /* console.log("Client Connected");*/
+    console.log("Client Connected");
     var thisprojTopic=projTopic?projTopic:'Topic/Weirdo/DaChange';
     subscribe(thisprojTopic,0);
 }
 
 function unsubscribe(topic) {
-    // console.info('Unsubscribing from ', topic);
+    console.info('Unsubscribing from ', topic);
     mqtt_client.unsubscribe(topic, {
         onSuccess: unsubscribeSuccess,
         onFailure: unsubscribeFailure,
@@ -46,11 +43,11 @@ function unsubscribe(topic) {
 }
 
 function unsubscribeSuccess(context){
-   /* console.info('Successfully unsubscribed from ', context.invocationContext.topic);*/
+    console.info('Successfully unsubscribed from ', context.invocationContext.topic);
 }
 
 function unsubscribeFailure(context){
-   /* console.info('Failed to  unsubscribe from ', context.invocationContext.topic);*/
+    console.info('Failed to  unsubscribe from ', context.invocationContext.topic);
 }
 
 function subscribe(topic,qos) {
@@ -68,18 +65,17 @@ function subscribe(topic,qos) {
 }
 
 function onFailure(context){
-   /* console.log("connect onFailure");
-    console.dir(context);*/
+    console.log("connect onFailure");
+    console.dir(context);
     mqtt_connect();
 }
 
 //链接丢失
 function onConnectionLost(context) {
-//    info("正在连接服务器");
-    /*console.log("connect onConnectionLost");
-    console.dir(context);*/
+    console.log("connect onConnectionLost");
+    console.dir(context);
     if (context.errorCode !== 0) {
-      /*  console.log("onConnectionLost:"+context.errorMessage);*/
+        console.log("onConnectionLost:"+context.errorMessage);
     }
     mqtt_connect();
 }
@@ -87,13 +83,9 @@ function onConnectionLost(context) {
 //called when a message arrives
 function onMessageArrived(message) {
 
-  //  console.log("message:"+message.payloadString);
     var json = eval('('+message.payloadString+')');
-   // console.log("message1:"+message.payloadString);
-   // console.log("message2:"+json.data);
+    console.log("message:"+message.payloadString);
     handldMessage(json.data);
-  //  handldBaiduMessage(json.data);
-
 
 }
 
